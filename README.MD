@@ -1,6 +1,6 @@
 # Be-Strong - Sports Supplements E‑commerce
 
-> A full‑stack e‑commerce platform for sports nutrition products and supplements — built with React (frontend), Node.js (backend) and PostgreSQL (database). Features include user authentication (JWT + bcrypt), product management (CRUD) for admins, shopping cart, responsive UI with hamburger menu and promotion carousel.
+> Full‑stack e‑commerce platform for sports supplements and nutrition — Frontend in React, Backend in Node.js/Express and PostgreSQL. Authentication with JWT + bcrypt, admin dashboard (product CRUD), persistent cart, responsive UI with hamburger menu and promotion carousel.
 
 ---
 
@@ -10,104 +10,137 @@
 
 **Backend repository:** [https://github.com/josueeliezer01/backend](https://github.com/josueeliezer01/backend)
 
+**Container image (optional quick test):** `ghcr.io/josueeliezer01/app-image:latest`
+
 ---
 
-## Project Overview
+## Overview
 
-This project is an online store specialized in sports supplements and nutrition products. It implements a modern, responsive frontend with React and React Router, backed by a Node.js API and a PostgreSQL database. Users can create accounts, log in, browse and search products and add items to a cart. Administrators have a protected dashboard for managing the product catalog (create, update, delete products including images, stock, price, and descriptions).
+Online store specialized in sports supplements. Users can create an account, authenticate, search products and use a cart. Administrators have a protected area to manage the catalog (image, name, price, stock and description).
 
-## Features
+## Key features
 
-* Responsive single-page frontend (React) with React Router navigation.
-* User registration and login using email/password.
-* Password hashing with **bcrypt** and authentication via **JWT**.
-* Shopping cart: add/remove items, change quantities, persist cart between sessions.
-* Product search bar.
-* Admin product management (create, read, update, delete) with fields: image, name, price, stock, description.
-* Promotion carousel on the homepage and a hamburger menu for mobile devices.
-* PostgreSQL database to store users, products, and orders.
-* API-level role checks: standard user vs. admin.
+* Responsive SPA frontend (React + React Router)
+* Authentication (bcrypt + JWT)
+* Persistent cart (add/edit/remove items)
+* Product search
+* Admin dashboard with permissions for product CRUD
+* Homepage promotions and hamburger menu for mobile
+* Backend in Node.js/Express with PostgreSQL (`pg`)
 
-## Tech Stack & Architecture
+---
 
-* Frontend
+## Architecture and stack
 
-  * React (functional components + hooks)
-  * React Router for route management
-  * State management: React Context
-  * HTTP client: fetch
-  * Responsive layout
+* **Frontend:** React (hooks), React Router, Context API, fetch
+* **Backend:** Node.js, Express, JWT, bcrypt, node-postgres (`pg`)
+* **DB:** PostgreSQL
+* **Containers:** Docker + Docker Compose (setup included)
 
-* Backend
+---
 
-  * Node.js with Express
-  * Authentication: JWT (jsonwebtoken) and bcrypt for password hashing
-  * Database: PostgreSQL via node-postgres `pg`
-  * Image uploads
+## Requirements
 
+* Node.js (recommended v16+)
+* npm or yarn
+* Docker and Docker Compose (if you want to use containers)
+* PostgreSQL (if running locally)
 
-## Getting Started
+---
 
-### Prerequisites
+## Environment configuration (.env)
 
-* Node.js
-* npm
-* PostgreSQL database (local or managed)
+### `.env.example` (for Docker / Docker Compose)
 
-### Clone the repositories
-
-```bash
-# Frontend
-git clone https://github.com/josueeliezer01/frontend.git
-
-# Backend
-git clone https://github.com/josueeliezer01/backend.git
-```
-
-### Environment variables
-
-Create a `.env` file in each repo with the required values.
-
-**Backend `.env.example`**
-
-```
+```env
 PORT=4000
-DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DATABASE
+DATABASE_URL=postgresql://postgres:postgres@db:5432/be_strong
+PG_HOST=db
+PG_PORT=5432
+PG_USER=postgres
+PG_PASSWORD=postgres
+PG_DATABASE=be_strong
 JWT_SECRET=your_super_secret_key_here
-
-**Frontend `.env.example`**
-
 ```
-REACT_APP_API_URL=http://localhost:4000/
 
-### Database setup
+### `.env.example.local` (for local run without Docker)
 
-1. Create the PostgreSQL database: `createdb sports_store_db`.
-2. Run the SQL schema / migrations.
+```env
+PORT=4000
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/be_strong
+PG_HOST=localhost
+PG_PORT=5432
+PG_USER=postgres
+PG_PASSWORD=postgres
+PG_DATABASE=be_strong
+JWT_SECRET=your_super_secret_key_here
+```
+
+---
+
+## Running with Docker (recommended)
+
+Docker Compose makes it easy to reproduce the full environment (DB + backend + frontend). The `db-init/` folder contains `be_strong.dump` and `restore.sh` — when Postgres initializes for the first time, files placed in `/docker-entrypoint-initdb.d` will be executed automatically to populate the database.
+
+---
+
+## Using the GitHub Container Registry image (optional quick test)
+
+A prebuilt container image is available at `ghcr.io/josueeliezer01/app-image:latest`. This image includes and runs the full stack (frontend, backend and the database) already configured — you only need to run the image.
+
+Example (basic):
 
 ```bash
-# inside backend repo
-npm install
-npm run migrate
-npm run seed
+# pull and run the container (adjust ports as needed)
+docker run --rm -p 80:80 ghcr.io/josueeliezer01/app-image:latest
 ```
 
-### Run the backend
+---
+
+## Running without Docker (local)
+
+If you prefer to run everything locally (Postgres installed locally):
+
+1. Create the local database:
+
+```bash
+createdb be_strong
+```
+
+2. Restore the dump
+
+```bash
+pg_restore -Fc -d be_strong db-init/be_strong.dump
+```
+
+If the dump is a plain SQL file:
+
+```bash
+psql be_strong < db-init/be_strong.dump
+```
+
+3. Adjust the `.env` to point to `localhost` (see `.env.example.local`) and run the backend:
 
 ```bash
 cd backend
 npm install
-# set .env as described
-node scr/server.js
-
+# optional: run migrations if you prefer not to use the dump
+npx node-pg-migrate up -m ./migrations
+node src/server.js
 ```
 
-### Run the frontend
+---
+
+## Running migrations and seeds
+
+The project uses `node-pg-migrate` for migrations. Examples:
 
 ```bash
-cd frontend
-npm install
-# set .env as described
-npm start
+# apply migrations
+npx node-pg-migrate up -m ./migrations
 
+# seeds
+node scripts/seed.js
 ```
+
+---
