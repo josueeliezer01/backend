@@ -28,6 +28,14 @@ export const up = (pgm) => {
   pgm.createIndex("products", "category", { name: "idx_products_category" });
   pgm.createIndex("products", "brand", { name: "idx_products_brand" });
   pgm.createIndex("products", "on_sale", { name: "idx_products_on_sale" });
+
+  pgm.addConstraint("products", "products_created_by_fkey", {
+    foreignKeys: {
+      columns: "created_by",
+      references: "users(id)",
+      onDelete: "SET NULL",
+    },
+  });
 };
 
 export const down = (pgm) => {
