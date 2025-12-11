@@ -41,19 +41,25 @@ Online store specialized in sports supplements. Users can create an account, aut
 
 ## Requirements
 
-* Node.js (recommended v16+)
+* Node.js
 * npm or yarn
 * Docker and Docker Compose (if you want to use containers)
 * PostgreSQL (if running locally)
 
 ---
 
-## Environment configuration (.env)
+## Frontend environment configuration (.env)
+
+```env
+REACT_APP_API_URL=http://localhost:3333
+```
+
+## Backend environment configuration (.env)
 
 ### `.env.example` (for Docker / Docker Compose)
 
 ```env
-PORT=4000
+PORT=3333
 DATABASE_URL=postgresql://postgres:postgres@db:5432/be_strong
 PG_HOST=db
 PG_PORT=5432
@@ -66,7 +72,7 @@ JWT_SECRET=your_super_secret_key_here
 ### `.env.example.local` (for local run without Docker)
 
 ```env
-PORT=4000
+PORT=3333
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/be_strong
 PG_HOST=localhost
 PG_PORT=5432
